@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -10,39 +10,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      # 1. Download your code from GitHub
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      # 2. Set up Java (required to build Android apps)
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
+      # 3. Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Get Project Dependencies
-        run: flutter pub get
-
-      - name: Recreate Android Project Folders
-        # This automatically builds the missing 'android/' directory files!
-        run: flutter create --platforms=android .
-
-      - name: Configure Hardware Camera Permissions
-        # This injects the camera, audio, and storage permission tags into the generated Android manifest
+      # 4. Magically generate the missing Android folder on-the-fly!
+      - name: Recreate Android Project Files
         run: |
-          manifest_path="android/app/src/main/AndroidManifest.xml"
-          sed -i 's|<\/manifest>|    <uses-permission android:name="android.permission.CAMERA"/>\n    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\n<\/manifest>|g' "$manifest_path"
+          flutter create . --platforms=android
+          flutter pub get
 
-      - name: Compile Production APK
+      # 5. Automatically insert Camera, Sound, and Storage Permissions
+      - name: Inject Android Permissions
+        run: |
+          python3 -c "
+          with open('android/app/src/main/AndroidManifest.xml', 'r') as f:
+              content = f.read()
+
+          permissions = '''
+              <uses-permission android:name=\"android.permission.CAMERA\" />
+              <uses-permission android:name=\"android.permission.RECORD_AUDIO\" />
+              <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />
+              <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />
+              <uses-permission android:name=\"android.permission.MANAGE_EXTERNAL_STORAGE\" android:maxSdkVersion=\"30\" />
+          '''
+
+          if '<uses-permission' not in content:
+              content = content.replace('<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">', '<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n' + permissions)
+
+          with open('android/app/src/main/AndroidManifest.xml', 'w') as f:
+              f.write(content)
+          "
+
+      # 6. Build the release APK binary
+      - name: Build Release APK
         run: flutter build apk --release
 
-      - name: Upload Finished APK File
+      # 7. Save and bundle the compiled APK file so you can download it
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: packing-proof-app-apk
+          name: PackingProof-Android-APK
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

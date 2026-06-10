@@ -2,35 +2,47 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.19.6'
-        channel: 'stable'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
 
-    - name: Get dependencies
-      run: flutter pub get
+      - name: Get Project Dependencies
+        run: flutter pub get
 
-    - name: Build APK
-      run: flutter build apk --release
+      - name: Recreate Android Project Folders
+        # This automatically builds the missing 'android/' directory files!
+        run: flutter create --platforms=android .
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: packing-proof-app
-        path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Configure Hardware Camera Permissions
+        # This injects the camera, audio, and storage permission tags into the generated Android manifest
+        run: |
+          manifest_path="android/app/src/main/AndroidManifest.xml"
+          sed -i 's|<\/manifest>|    <uses-permission android:name="android.permission.CAMERA"/>\n    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\n<\/manifest>|g' "$manifest_path"
+
+      - name: Compile Production APK
+        run: flutter build apk --release
+
+      - name: Upload Finished APK File
+        uses: actions/upload-artifact@v4
+        with:
+          name: packing-proof-app-apk
+          path: build/app/outputs/flutter-apk/app-release.apk

@@ -369,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
         content: const Text("Are you sure? This deletes ALL video assets from physical storage disks and wipes current SQLite indices."),
         actions: [
           TextButton(
-            child: const Text("CANCEL", style: TextStyle(color: Colors.slateGrey)),
+            child: const Text("CANCEL", style: TextStyle(color: Colors.slateColor)),
             onPressed: () => Navigator.pop(context, false),
           ),
           ElevatedButton(
@@ -406,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text(
           "PACKINGPROOF™ TERMINAL",
-          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 15),
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 14),
         ),
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
@@ -495,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatusHUDEntry() {
-    Color hudBannerColor = Colors.grey[800]!;
+    Color hudBannerColor = Colors.slateColor;
     IconData hudIcon = Icons.info_outline;
 
     if (_mode == AppMode.scanning) {
@@ -553,16 +553,16 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(color: Colors.amber),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text("PREPARING CAM...", style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
-            const SizedBox(height: 2),
-            Text("Managing native hardware locks", style: TextStyle(color: Colors.grey, fontSize: 9)),
+            SizedBox(height: 2),
+            Text("Managing native hardware locks", style: TextStyle(color: Colors.slateColor, fontSize: 9)),
           ],
         ),
       );
     } else {
       return const Center(
-        child: Text("Preparing Hardware Feeds...", style: TextStyle(color: Colors.grey)),
+        child: Text("Preparing Hardware Feeds...", style: TextStyle(color: Colors.slateColor)),
       );
     }
   }
@@ -617,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(Icons.lens, color: Colors.redAccent, size: 12),
                 const SizedBox(width: 6),
                 Text(
-                  "RECORDING: ${_secondsRemaining}S REMAINING",
+                  "RECORDING: $_secondsRemaining S REMAINING",
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
                 ),
               ],
@@ -671,15 +671,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.video_library_rounded, color: Colors.grey, size: 32),
+                        Icon(Icons.video_library_rounded, color: Colors.slateColor, size: 32),
                         SizedBox(height: 4),
                         Text(
                           "No proofs logged yet.",
-                          style: TextStyle(color: Colors.grey, fontSize: 11),
+                          style: TextStyle(color: Colors.slateColor, fontSize: 11),
                         ),
                         Text(
                           "Detect barcode to automatically record.",
-                          style: TextStyle(color: Colors.grey, fontSize: 9),
+                          style: TextStyle(color: Colors.slateColor, fontSize: 9),
                         ),
                       ],
                     ),
@@ -719,13 +719,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 "File: $fileName",
-                                style: const TextStyle(color: Colors.grey, fontSize: 9),
+                                style: const TextStyle(color: Colors.slateColor, fontSize: 9),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 proof.timestamp,
-                                style: const TextStyle(color: Colors.grey, fontSize: 8),
+                                style: const TextStyle(color: Colors.slateColor, fontSize: 8),
                               ),
                             ],
                           ),

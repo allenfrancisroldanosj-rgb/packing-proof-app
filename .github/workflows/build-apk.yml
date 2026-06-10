@@ -5,40 +5,49 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: # Allows you to run this build manually from the Actions tab!
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Download the source code from your repository
-      - name: Checkout Code
+      # Step 1: Download your files from GitHub
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Java 17 (Required by Gradle to build modern Flutter apps)
-      - name: Set up Java Development Kit (JDK 17)
+      # Step 2: Set up Java (required for Android packaging)
+      - name: Set up Java Development Kit (JDK)
         uses: actions/setup-java@v4
         with:
+          distribution: 'zulu'
           java-version: '17'
-          distribution: 'temurin'
 
-      # Step 3: Install Flutter SDK (Uses the official, updated stable Action)
-      - name: Set up Flutter
+      # Step 3: Set up Flutter
+      - name: Set up Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      # Step 4: Download and configure all the dependencies listed in pubspec.yaml
-      - name: Install Dependencies
+      # Step 4: The MAGIC Step (Creates Android files if missing)
+      - name: Auto-generate Android template files if missing
+        run: |
+          if [ ! -d "android" ]; then
+            echo "⚠️ Android directory is missing! Auto-generating platform files..."
+            flutter create --platforms=android .
+          fi
+
+      # Step 5: Get your Flutter package dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      # Step 5: Compile the app into a release Android APK
-      - name: Build APK Release Bundle
+      # Step 6: Build the APK
+      - name: Build Android Release APK
         run: flutter build apk --release
 
-      # Step 6: Save the built APK to GitHub so you can easily download it
-      - name: Upload APK as Artifact
+      # Step 7: Save and download your completed APK file!
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: packing-proof-app-apk
+          name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk

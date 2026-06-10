@@ -1,5 +1,5 @@
 name: packing_proof_app
-description: Offline-first packing proof video scanner.
+description: Android-first local video proof recording application for eCommerce warehouses.
 version: 1.0.0+1
 
 environment:
@@ -9,14 +9,31 @@ dependencies:
   flutter:
     sdk: flutter
   
-  # Offline Database & Files
+  # State Management
+  provider: ^6.1.1
+  
+  # Local Database
   sqflite: ^2.3.0
   path: ^1.8.3
-  path_provider: ^2.1.1
   
-  # Camera & Scanning
-  camera: ^0.10.5+9
+  # Barcode Scanner & Camera
   mobile_scanner: ^3.5.2
+  camera: ^0.10.5+9
+  
+  # File Management & Media
+  intl: ^0.19.0
+  path_provider: ^2.1.1
+  permission_handler: ^11.1.0
+  
+  # Video Compression
+  flutter_video_compress: ^1.5.0
+  
+  # Media Player (for reviewing recorded proof)
+  video_player: ^2.8.2
+  
+  # UI Elements (for clean modern look and toasts)
+  google_fonts: ^6.1.0
+  flutter_spinkit: ^5.2.0
 
 dev_dependencies:
   flutter_test:
